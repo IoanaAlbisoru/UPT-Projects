@@ -1,0 +1,1 @@
+identifier1,identifier2:array[ 12+1 ..12*3 ]of char;

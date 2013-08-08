@@ -1,0 +1,3 @@
+while 12>3 do 
+	identifier1:=a;
+end

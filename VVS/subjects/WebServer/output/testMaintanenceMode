@@ -1,0 +1,6 @@
+HTTP/1.1 503 Maintenance
+Connection: close
+Server: Deep Thought server v0
+Content-Type: text/html
+
+<html><body><h2>Under maintenance, EXTERMINATE, EXTERMINATE!</h2></body></html>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/D:/Workspace/Dropbox/Workspace/School/PASSC/XMLFiles/class.xsd"
+    className="newClass.DataClass">   
+    <field fieldName="intName" fieldValue="42"/>
+    <field fieldName="stringName" fieldValue="SooomeRandomString"/>
+    <field fieldName="doubleName" fieldValue="42.0"/>
+</object>

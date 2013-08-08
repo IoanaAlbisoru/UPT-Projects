@@ -1,0 +1,3 @@
+begin
+	identifier1:=a;
+	a:=2

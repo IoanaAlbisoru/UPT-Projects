@@ -1,0 +1,1 @@
+repeat a:=a+1 until 42=6*9

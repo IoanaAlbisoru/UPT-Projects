@@ -1,0 +1,5 @@
+if 12>3 then
+begin
+ a:=6*9
+ end
+  else begin a:=42 end

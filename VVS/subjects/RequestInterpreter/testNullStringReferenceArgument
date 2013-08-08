@@ -1,0 +1,2 @@
+the content of this file doesn't matter, I had to make it to preserve the consistency of the test running framework;
+This test simply tests if RequestHandler does a proper job when it receives a null reference in it's constructor; 

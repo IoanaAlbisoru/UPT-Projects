@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ByteCommunication"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/ByteCommunication/bin"/>
+	<classpathentry kind="lib" path="/StockClient/bin"/>
+	<classpathentry kind="lib" path="/StockCommonInterfaces/bin"/>
+	<classpathentry kind="lib" path="/StockServer/bin"/>
+	<classpathentry kind="lib" path="/zProofOfConceptClient/bin"/>
+	<classpathentry kind="lib" path="/zProofOfConceptCommon/bin"/>
+	<classpathentry kind="lib" path="/zProofOfConceptServer/bin"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

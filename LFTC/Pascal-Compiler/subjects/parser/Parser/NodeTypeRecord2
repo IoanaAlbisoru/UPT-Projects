@@ -1,0 +1,4 @@
+record
+identifier1:integer;
+identifier2,indentifier3:integer
+end

@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Connection: close
+Server: Deep Thought server v0
+Content-Type: text/html
+
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+	<h2>Our miraculous second page;</h2>
+</body>
+</html>

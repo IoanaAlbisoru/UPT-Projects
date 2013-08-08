@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Angle Meter</string>
+    <string name="ZERO">0.0</string>
+    <string name="horizontal">Horizontal</string>
+    <string name="vertical">Vertical</string>
+    <string name="label_angle">"Angle of deviation: "</string>
+
+</resources>

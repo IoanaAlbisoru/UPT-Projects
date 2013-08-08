@@ -1,0 +1,14 @@
+program arthur;
+const bla:=42;
+var dent:char;
+
+function f(var a,b:char;c,d:char):integer;
+const c:=4;
+begin
+a:=4;
+end;
+
+begin
+	identifier1:=a;
+	a:=2
+end

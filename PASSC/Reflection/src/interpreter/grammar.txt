@@ -1,0 +1,42 @@
+entity Insurance
+  str name;
+  str socialSecurityNr;
+  str address;
+  int age;
+  double price1;
+  double price2;
+  double price3;
+  def calculate price1+price2+price3;
+  
+ entity Insurance
+  double price1;
+  double price2;
+  double price3;
+  def calculate price1+price2+price3;
+  def lala price1*2;
+  
+entity MedicalInsurance extends Insurance
+  str history;
+  int tests;
+  int fortyTwo;
+  def new tests+fortyTwo;
+  
+entity SpecialMedInsurance extends MedicalInsurance
+  str special;
+  
+
+entity newName extends name
+  int ID;
+  str SHIT;
+  double crap;
+
+instanceName=new newName
+
+entityName.addAt type n;
+entityName.remAt name;
+entityName.addOp def name asd+asd;;
+entityName.remOp name;
+
+instance.AttributeName = Value;
+instance.op;
+

@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Fri Mar 30 01:16:08 EEST 2012
+markTmpDer=true
+builderNum=2
+outputDir=output/
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=AngleMeter.tex
+outputFile=AngleMeter.pdf
+langSpell=en
+markDer=true
+srcDir=

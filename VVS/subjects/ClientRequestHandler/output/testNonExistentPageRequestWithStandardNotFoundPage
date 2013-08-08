@@ -1,0 +1,6 @@
+HTTP/1.1 404 Not Found
+Connection: close
+Server: Deep Thought server v0
+Content-Type: text/html
+
+<html><body><h2>Not Found</h2></body></html>

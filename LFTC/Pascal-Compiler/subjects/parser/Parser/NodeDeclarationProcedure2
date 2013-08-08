@@ -1,0 +1,5 @@
+procedure p(var a,b:char);
+const c:=4;
+begin
+a:=4;
+end;

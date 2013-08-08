@@ -1,0 +1,105 @@
+Projects for PASSC class of 2011, UPT.
+
+Tema 1 - BlackBoard
+
+Scopul acestei teme este un exercitiu de implementare a unor stiluri (tipare)arhitecturare fundamentale si studiul modului cum alegerea unui anumit stil arhitectural influenteaza solutia unei probleme date.
+Descrierea problemei
+
+Un pacient se prezinta la doctor cu o serie de simptome si este consultat de diversi medici specialisti (internist, cardiolog, neurolog, ortoped, etc) pentru a-i stabili un diagnostic. Fiecare specialist poate sa puna intrebari suplimentare (de genul aveti simptomul x ? ) pentru a lamuri anumite suspiciuni de diagnostic, si daca in urma raspunsului pacientului poate pune un diagnostic exact, il pune, iar daca nu noteaza informatiile suplimentare pe fisa pacientului si acesta va merge si la alt medic.
+
+Fiecare medic specialist poate diagnostica un set de boli care tin de specialitatea sa.
+
+Fiecare diagnostic este pus daca se regaseste un anumit set de simptome. Daca se regaseste un subset suficient de mare de simptome se declara doar suspiciunea pentru o anumita boala. Este posibil ca la un moment dat sa existe suspiciuni pentru mai multe boli diferite (boli diferite pot avea unele simptome comune).
+
+Corectitudinea din punct de vedere medical a diagnosticelor puse de program nu este importanta pentru scopul acestei teme, deci puteti gasi metode convenabile de a simplifica determinarea unui diagnostic pe baza unui set de simptome. (de exemplu, consideram ca sunt 10 boli, codificate prin cifrele c de la 0 la 9 iar simptomele numere intregi cu 3 cifre. O boala c este diagnosticata daca in lista curenta de simptome apar cel putin 5 simptome care contin respectiva cifra, iar o boala este suspectata daca apar cel putin 3 simptome. Acesta e doar un exemplu, puteti gasi si alte modalitati convenabile de a simplifica detaliile "medicale" ale problemei).
+
+Problema poate fi modelata in mod diferit, utilizand stilurile arhitecturale Pipes-and-Filters, BlackBoard, EventBus.
+
+Modelarea in stil BlackBoard: Toti medicii asista la consultatie. Fisa pacientului este accesibila tuturor (medicii sunt knowledge sources iar fisa este in blackboard). Cand un anumit medic recunoaste in fisa o combinatie de simptome care tin de domeniul sau, poate interveni in consultatie, fie ca sa puna un diagnostic definitiv daca simptomele sunt clare, fie ca sa puna intrebari suplimentare, daca simptomele notate in fisa indica suspiciunea pentru anumite diagnostice, si sa noteze ipoteze de diagnostic.
+
+
+Cerinte: Fiecare student va implementa un problema intr-unul din cele 3 stiluri arhitecturale. Stilul atribuit fiecarui student rezulta din numarul de ordine (i) al studentului in cadrul grupei de laborator (vezi orar grupe laborator PASSC ) in felul urmator: daca i%3==0 => Pipes and Filters; daca i%3==1 => BlackBoard; daca i%3==2 => EventBus.
+
+Stilul fiind impus de enuntul problemei, realizarea temei implica formularea problemei intr-un mod cat mai adecvat acestui stil si implementarea corecta a acestuia.
+
+Criteriile de notare:
+
+Aceasta tema reprezinta 2 lucrari de laborator. Termenul de realizare al temei este de 2 saptamani. Rezultatele trebuie prezentate in sapt nr 6. Intarzaierile de realizare a temei se depuncteaza cu cate 0.5 puncte pentru	 fiecare saptamana de intarziere.
+
+Notarea este individuala. Fiecare student va realiza si prezenta o solutie proprie a problemei. Solutiile elaborate "in colectiv" precum si cele copiate se noteaza cu zero puncte. Nerealizarea temei se noteaza cu 4 (punctajul de start).
+
+Puncte bonus: Se acorda 1 punct bonus pentru examen pentru realizare unei variante mai complexe (in acelsi stil arhitectural impus) in care exista mai multi pacienti care apar in acelsi timp si care sunt diagnosticati in mod concurent de echipa de medici.
+
+Tema 2 - varianta B - Reflection
+
+Aceasta este una din variantele care pot fi alese pentru Tema 2.
+
+Scopul temei: Construirea unei arhitecturi reflective (Do-it-yourself reflection)
+
+Descrierea temei
+
+Utilizand Dynamic Object Model, implementati un model dinamic pentru o aplicatie de vanzare de diferite tipuri de produse (asemanator cu exemplul User Defined Products - pag 9 din articol Yoder & Johnson) . Pentru fiecare tip de produse trebuie precizate tipurile relevante de atribute pe care le are si modul in care valorile acestora influenteaza pretul unui produs din acel tip. Modelul trebuie sa suporte descrierea oricaror tipuri de produse de vanzare (masini, asigurari, jucarii, etc). De exemplu, pentru produse de tip polite de asigurare (de casa, de masina, de viata, de accident, de calatorie, etc) fiecare tip de polita de asigurare este caracterizat de un set specific de tipuri de atribute. De exemplu, pentru asigurarea de casa, atributele relevante sunt valoarea de la momentul construirii, vechimea, zona in care se afla. Alt exemplu, pentru asigurarea de masina, atributele relevante sunt marca, vechimea si puterera motorului. Pentru fiecare tip de produs (asigurare de casa, asigurare de viata, asigurare de masina, etc) se definesc business rules care stabilesc modul de calcul al pretului. De exemplu, pentru asiguraril;e de masina, pretul unei polite va fi dat de o formula de calcul in care intervin valorile atributelor sale, de exemplu pret=1000*coef_lookup(marca)-10*vechimea+5*putere_motor
+Cerinte standard: Trebuie suportate urmatoarele facilitati:
+
+crearea la runtime a unor noi tipuri de produse
+crearea la runtime a business-rule de calcul a pretului, pentru un anumit tip de produs
+crearea la runtime a unor produse (instante) de tipurile cunoscute in sistem pana la acel moment, setarea proprietatilor acestora (cu verificarea ca se acceseaza o proprietate valida a tipului si se da o valoare valida pentru tipul respectivei proprietati)
+aflarea pretului unei anumite instante de produs
+modificarea la runtime a unui tip de produs (de ex adaugarea/stergerea unui tip de proprietate, cu modificarea instantelor existente ale acelui tip)
+listarea tuturor produselor existente la un moment dat, cu valorile proprietatilor lor
+Observatie: programul nu este nevoie sa fie interactiv, se pot realiza direct din cod operatiile cerute (similar cu exemplul din curs, slide 45/p3.ppt)
+
+Puncte suplimentare: 1 punct bonus pentru extinderea cu urmatoarele facilitati (conform Adaptive Object Model Architectural Style):
+
+Realizarea unui limbajul de descriere ca un Domain Specific Language (DSL) pentru domeniul descrierii de tipuri de produse de vanzare si implementarea interpretorului acestuia. Limbajul de descriere realizat va suporta comenzi din urmatoarele categorii:
+crearea unor noi tipuri de atribute, produse, business rules
+crearea de noi instante ale unor tipuri existente
+modificarea unor tipuri existente de produse (adaugare/stergere de atribute, inlocuirea business rule)
+Interpretorul va functiona in felul urmator:
+faza de initializare: citeste un fisier cu descrierea (DSL) tipurilor initale cunoscute de produse
+ciclul de functionare obisnuit: accepta comenzi in formatul DSL stabilit (de la tastatura sau din alte fisiere de comenzi). Prin aceste comenzi se vor putea crea instante de produse din tipurile cunoscute pana la momentul curent, crea noi tipuri de produse, modifica structura unor tipuri de produse existente, lista toate tipurile cunoscute la un moment dat, lista toate produsele de un anumit tip impreuna cu pretul lor calculat conform regulii specifice.
+
+Tema 3 - ORB
+
+Scopul acestei teme este un exercitiu de implementare a tiparului Broker si intelegerea rolului pe care il are Middleware in realizarea de aplicatii distribuite in maniera orientata pe obiecte.
+
+Aceasta tema grupeaza 3 lucrari de laborator (sapt S8, S9, S10). Rezultatele trebuie prezentate cel mai tarziu in saptamana S11.
+
+Dupa cum rezulta din descrierea problemei, sunt prevazute punctaje intermediare pentru realizarea partiala a temei. Intarzaierile de realizare a temei se depuncteaza cu cate 0.5 puncte pentru fiecare saptamana de intarziere. Aceasta tema ofera si posibilitatea realizarii unor facilitati optionale, pentru puncte "bonus" la examen. Aceste facilitati optionale au termenul extins pana in saptamana nr 12.
+
+Descrierea problemei
+
+Se va proiecta si implementa sistemul ToyORB (Toy Object Request Broker).
+Scopul ToyORB este facilitarea dezvoltarii si rularii de aplicatii distribuite orientate pe obiecte.
+
+Pentru obiectele la distanta, se presupune ca apartin unui model simplificat in care operatiile pot avea ca parametri si/sau rezultat numai tipurile int, float si string (nu obiecte). De asemenea, pentru aceasta tema nu se cere ca un obiect la distanta sa permita acesul concurent al mai multor clienti la un moment dat.
+
+Pentru mai multe detalii despre functiile ToyORB si exemplul StockMarket vezi cursul din saptamana 7 !
+
+Suport pentru comunicarea in retea
+
+Se furnizeaza suportul pentru comunicarea in retea prin siruri de octeti transmise/receptionate: In pagina de web a cursului se dau exemple de implementari Sender-Receiver sau Requester-Replyer. (ByteCommunication.zip)
+
+Acest cod poate fi utilizat pentru realizarea temei, atat direct cat si adaptat.
+
+Implementarea ToyORB nu va folosi alte tehnologii de Middleware ! (acestea reprezinta "concurenta" cu care ToyOB e in competitie ;-)
+
+Bibliografia generala recomandata
+
+Cursurile din saptamanile 6+7 cu bibliografia acestora -> vezi slide-uri si exemple de cod in pagina cursului
+Criterii de notare
+
+Tema este individuala. Fiecare student va realiza si prezenta o solutie proprie a problemei. Solutiile elaborate "in colectiv" precum si cele copiate se noteaza cu zero puncte. Nerealizarea temei se noteaza cu 4 (punctajul de start).
+
+Criteriile. Precizare: Fiecare student va realiza un singur proiect - proiectarea/implementarea unitara a unei variante de ToyORB cu un anumit grad de complexitate/ numar de facilitati. Punctele de mai jos indica criteriile de notare aplicate si nu reprezinta o lista de proiecte diferite/incrementale care ar fi de prezentat de fiecare student !
+
+Cerinta minima (pentru nota 5): Scrierea unui program StockMarketClient si a unui program StockMarketServer, direct peste tiparul ByteSender-Receiver sau Requestor/Replyer, utilizand comunicare prin mesaje intre client si server.
+Pentru nota 7: in plus fata de punctul 1, se va realiza un NamingService care localizeaza un server cunoscut prin numele sau. NamingService se va implementa sub forma de serviciu unic cu adresa binecunoscuta, si se va utiliza in aplicatia StockMarket.
+Pentru nota 8: in plus fata de punctele 1 si 2, se va realiza implementarea Proxy-urilor Client si Server pentru aplicatia StockMarket simpla (care exporta un singur serviciu, get_price).
+Pentru nota 9: Ca si la punctul anterior, dar aplicatia va fi de tip ComplexStockMarket, care ofera pe langa serviciul get_price si serviciile get_highest si get_lowest, returnand numele companiilor cel mai bine/cel mai slab cotate la momentul curent.
+Pentru nota 10: ToyORB poate suporta nemodificat orice alte tipuri de aplicatii (toate dependentele de tipul aplicatiei au fost eliminate din ToyORB). Se va implementa inca o alta aplicatie diferita (de exemplu InfoServer) in afara de StockMarket. NamingService prezinta capabilitati de Trader (obiectele remote pot fi cautate dupa numele obiectului concret sau dupa tipul serviciului).
+Pentru "puncte bonus la lucrarea scrisa de la sfarsitul semestrului (examen)": Aceste facilitati suplimentare au un termen extins pana in saptamana a 12-a.
+generarea automata a codului proxy-urilor. Sunt posibile una din variantele:
+Implementarea unui tool generator de proxy-uri: genereaza codul sursa pentru Proxy pornind de la interfata obiectului remote (CORBA-style), sau pornind de la implementarea obiectului remote (RMI-style) (0.5 punct bonus examen)
+generarea proxy-urilor la runtime prin mecanismul de dynamic proxy (1 punct bonus examen)
+activarea automata a obiectelor remote, la cererea clientilor, si dezactivarea lor cand nu mai sunt utilizate de nici un client (1 punct bonus examen)

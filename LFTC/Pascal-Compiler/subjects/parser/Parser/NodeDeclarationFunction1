@@ -1,0 +1,4 @@
+function f:integer;
+begin
+a:=4;
+end;

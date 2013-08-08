@@ -1,0 +1,5 @@
+function f(var a,b:char;c,d:char):integer;
+const c:=4;
+begin
+a:=4;
+end;

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+        
+	<xs:element name="class">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element maxOccurs="1" use="required" name="className"/> 
+				<xs:element maxOccurs="unbounded" name="field">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element use="required" name="fieldType"/>
+							<xs:element use="required" name="fieldName"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="object">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element maxOccurs="1" use="required" name="className"/> 
+				<xs:element maxOccurs="unbounded" name="field">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element use="required" name="fieldName"/>
+							<xs:element use="required" name="fieldValue"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
