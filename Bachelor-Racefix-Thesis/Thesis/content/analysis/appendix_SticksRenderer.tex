@@ -1,0 +1,146 @@
+\chapter{The SticksRenderer Class}\label{ap:SticksRenderer}
+\begin{lstlisting}[caption={}, label = {code:jmol:SticksRenderer}] 
+public class SticksRenderer extends ShapeRenderer {
+  private boolean showMultipleBonds;
+  private float multipleBondSpacing;
+  private float multipleBondRadiusFactor;
+  private byte modeMultipleBond;
+  // boolean showHydrogens;
+  private byte endcaps;
+  private boolean hbondsBackbone;
+  private boolean bondsBackbone;
+  private boolean hbondsSolid;
+  private Atom atomA, atomB;
+  private Bond bond;
+  private int xA, yA, zA;
+  private int xB, yB, zB;
+  private int dx, dy;
+  private int mag2d;
+  private short colixA, colixB;
+  private int width;
+  private boolean lineBond;
+  private int bondOrder;
+  private boolean renderWireframe;
+  private boolean isAntialiased;
+  private boolean slabbing;
+  private boolean slabByAtom;
+  private int[] dashDots;
+  private final Vector3f x = new Vector3f();
+  private final Vector3f y = new Vector3f();
+  private final Vector3f z = new Vector3f();
+  private final Point3f p1 = new Point3f();
+  private final Point3f p2 = new Point3f();
+  private final Point3i s1 = new Point3i();
+  private final Point3i s2 = new Point3i();
+  private void renderBond() {
+    atomA = bond.getAtom1();
+    atomB = bond.getAtom2();
+    int order = bond.getOrder() & ~JmolEdge.BOND_NEW;
+    if (bondsBackbone) {
+      if (ssbondsBackbone && (order & JmolEdge.BOND_SULFUR_MASK) != 0) {
+        // for ssbonds, always render the sidechain,
+        // then render the backbone version
+        atomA = atomA.getGroup().getLeadAtom(atomA);
+        atomB = atomB.getGroup().getLeadAtom(atomB);
+      } else if (hbondsBackbone && Bond.isHydrogen(order)) {
+        atomA = atomA.getGroup().getLeadAtom(atomA);
+        atomB = atomB.getGroup().getLeadAtom(atomB);
+      }
+    }
+    if (!atomA.isInFrame() || !atomB.isInFrame() || !g3d.isInDisplayRange(atomA.screenX, atomA.screenY)
+        || !g3d.isInDisplayRange(atomB.screenX, atomB.screenY) || modelSet.isAtomHidden(atomA.getIndex())
+        || modelSet.isAtomHidden(atomB.getIndex()))
+      return;
+    if (slabbing) {
+      if (g3d.isClippedZ(atomA.screenZ) && g3d.isClippedZ(atomB.screenZ))
+        return;
+      if (slabByAtom && (g3d.isClippedZ(atomA.screenZ) || g3d.isClippedZ(atomB.screenZ)))
+        return;
+    }
+    colixA = atomA.getColix();
+    colixB = atomB.getColix();
+    if (((colix = bond.getColix()) & Graphics3D.OPAQUE_MASK) == Graphics3D.USE_PALETTE) {
+      colix = (short) (colix & ~Graphics3D.OPAQUE_MASK);
+      colixA = Graphics3D.getColixInherited(
+          (short) (colix | viewer.getColixAtomPalette(atomA, JmolConstants.PALETTE_CPK)), colixA);
+      colixB = Graphics3D.getColixInherited(
+          (short) (colix | viewer.getColixAtomPalette(atomB, JmolConstants.PALETTE_CPK)), colixB);
+    } else {
+      colixA = Graphics3D.getColixInherited(colix, colixA);
+      colixB = Graphics3D.getColixInherited(colix, colixB);
+    }
+    xA = atomA.screenX;
+    yA = atomA.screenY;
+    zA = atomA.screenZ;
+    xB = atomB.screenX;
+    yB = atomB.screenY;
+    zB = atomB.screenZ;
+    if (zA == 1 || zB == 1)
+      return;
+    // set the rendered bond order
+    bondOrder = order & ~JmolEdge.BOND_NEW;
+    if ((bondOrder & JmolEdge.BOND_PARTIAL_MASK) == 0) {
+      if ((bondOrder & JmolEdge.BOND_SULFUR_MASK) != 0)
+        bondOrder &= ~JmolEdge.BOND_SULFUR_MASK;
+      if ((bondOrder & JmolEdge.BOND_COVALENT_MASK) != 0) {
+        if (!showMultipleBonds
+            || modeMultipleBond == JmolConstants.MULTIBOND_NEVER
+            || (modeMultipleBond == JmolConstants.MULTIBOND_NOTSMALL && mad > JmolConstants.madMultipleBondSmallMaximum)) {
+          bondOrder = 1;
+        }
+      }
+    }
+    // set the mask
+    int mask = 0;
+    switch (bondOrder) {
+    case 1:
+    case 2: 
+    case 3:
+    case 4:
+      break;
+    case JmolEdge.BOND_ORDER_UNSPECIFIED:
+      bondOrder = 1;
+      mask = (order == JmolEdge.BOND_AROMATIC_SINGLE ? 0 : 1);
+      break;
+    case JmolEdge.BOND_AROMATIC:
+    case JmolEdge.BOND_AROMATIC_DOUBLE:
+      bondOrder = 2;
+      mask = (order == JmolEdge.BOND_AROMATIC ? getAromaticDottedBondMask() : 0);
+      break;
+    default:
+      if ((bondOrder & JmolEdge.BOND_PARTIAL_MASK) != 0) {
+        bondOrder = JmolConstants.getPartialBondOrder(order);
+        mask = JmolConstants.getPartialBondDotted(order);
+      } else if (Bond.isHydrogen(bondOrder)) {
+        bondOrder = 1;
+        if (!hbondsSolid)
+          mask = -1;
+      } else if (bondOrder == JmolEdge.BOND_STRUT) {
+        bondOrder = 1;
+      }
+    }
+    // set the diameter
+    mad = bond.getMad();
+    if (multipleBondRadiusFactor > 0 && bondOrder > 1)
+      mad *= multipleBondRadiusFactor;
+    dx = xB - xA;
+    dy = yB - yA;
+    width = viewer.scaleToScreen((zA + zB) / 2, mad);
+    if (renderWireframe && width > 0)
+      width = 1;
+    lineBond = (width <= 1);
+    if (lineBond && (isAntialiased)) {
+      width = 3;
+      lineBond = false;
+    }
+    // draw the bond
+    switch (mask) {
+    case -1:
+      drawDashed(xA, yA, zA, xB, yB, zB, hDashes);
+      break;
+    default:
+      drawBond(mask);
+      break;
+    }
+  }
+\end{lstlisting}

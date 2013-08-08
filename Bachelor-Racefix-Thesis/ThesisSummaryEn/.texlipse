@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Thu May 31 18:06:36 EEST 2012
+markTmpDer=true
+builderNum=2
+outputDir=output/
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=racefixSummary.tex
+outputFile=racefixSummary.pdf
+langSpell=en
+markDer=true
+srcDir=

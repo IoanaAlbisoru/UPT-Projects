@@ -1,0 +1,160 @@
+\mychapter{Theoretical constructs}{chap:theory}
+\epigraph{\textit{These aren't the droids you're looking for.}}%
+{---\textsc{Obi-Wan Kenobi}} 
+
+\mysection{Refactoring}{th:refactoring}
+In~\cite{Fowler-Refactoring} Martin Fowler defines refactoring as a
+``disciplined technique for restructuring an existing body of code, altering its
+internal structure without changing its external behavior''. It has pervaded the
+community of agile software development because it is as an excellent way
+of coping with change, both by making it easier to provide elegant solutions for
+immediate problems and prepare the systems for future change.
+
+\mysubsection{Automated refactorings}{th:auto-refacorings}
+In the last years many refactorings have been automated as a means of freeing
+the programmer of repetitive, error prone tasks. Modern IDEs like
+\emph{eclipse}~\cite{eclipse-site} offer user friendly support for complex
+refactorings like \emph{extract method, pull up, push down, extract interface}.
+Also, researchers have been proposing new kinds of
+refactorings~\cite{ReLooper,Immutator,Ref-Reentrancy,Ref-SchaferSDT11,Ref-conc-lib,Ref-NestedHeapRegions}
+which try to tackle more complex problems than those readily available in our
+IDEs.
+
+\mysubsection{Eclipse refactoring user extensions}{th:eclipse-ref}
+The \emph{eclipse IDE} is notorious for its plugin architecture and support for
+user extensions, which does not shy away from user-defined refactorings. A
+comprehensible tutorial for using the eclipse API can be found
+at~\cite{eclipse-refactoring}.
+
+
+\mysection{Concurrency and parallelism}{th:conc-and-parallelism}
+Concurrency is defined as two or more tasks/actions run in overlapping time
+periods. A concurrent application will have two or more threads in progress at
+some time. This can mean that the application has two threads that are being
+swapped in and out by the operating system on a single core processor. These
+threads will be “in progress”---each in the midst of its execution---at the same
+time.
+
+Parallelism is defined as two or more tasks/actions run simultaneously.
+Obviously, parallelism is a subset of concurrency~\cite{TAOC}.
+
+\mysubsection{Data-race}{th:data-race}
+Data-races arise in concurrent applications when two or more threads contend for
+the same memory location at the same time; e.g. when two threads try to update
+the same memory location at the same time; or when one thread updates and
+another one tries to read.
+
+\mysubsection{Thread confinement}{th:thread-confinement}
+Data-races arise when threads try to access shared memory. A simple way to solve
+these data races is by not sharing memory. If only one single thread can access
+some data then no additional measures have to be taken to avoid
+data-races~\cite{JCP-book}.
+
+\mysubsection{Mutual exclusion}{th:locking}
+In order to \emph{correctly} communicate in memory, threads have to protect
+access to the shared memory locations. This is done by making sure that only one
+thread at a time has access to said memory location i.e. \emph{exclusive}
+access, or more often used \emph{synchronized} access. Synchronization has a
+major drawback as the way it is usually implemented causes performance
+bottlenecks and \emph{dead-locks} (when two thread wind up blocking each other's
+access to shared memory due to programming errors). When programming to
+eliminate data-races trade-off between memory usage/performance varies in
+tandem with the use of thread confinement/synchronization.
+
+\mysection{Java concurrency libraries}{th:java-conc-lib}
+The Java programming language is shipped with an extensive library that supports
+concurrent programming. Starting from thread creation and execution to thread
+safe collections and synchronization mechanisms. Also available, is a library
+called JSR166~\cite{JSR166-site} that is still in development; it offers
+very good and convenient support for parallel execution. Currently, it is
+scheduled to be included in the official release of Java 8.
+
+\mysubsection{ParallelArray}{th:parallel-array}
+\emph{ParallelArray}~\cite{PA-site} is a data structure included in the JSR166
+library that gives the user an easy way of applying parallel operations, reduce
+operations on the elements of an array. The framework assures thread scheduling
+and execution while the programmer is responsible to ensure that these
+operations do not cause data-races.
+
+\mysubsection{ThreadLocal}{th:thread-local}
+\emph{ThreadLocal}~\cite{TL-site} is an easy way to achieve thread
+confinement~\ref{th:thread-confinement}. It is a wrapper on objects that ensure
+that each thread will receive a unique copy of that object.
+
+\begin{lstlisting}[caption={ThreadLocal usage example}, label =
+{code:TL-example}]
+class ThreadMonkey{
+	ThreadLocal<Integer> data = new ThreadLocal<Integer>(){
+		@Override
+		Integer initialValue(){ return 42};
+	}
+	
+	public void concurrentTaskWithNoInitialization(){
+		//....
+		useData(data.get());
+		//...
+	}
+	
+	public void concurrentTaskWithInitialization(){
+		data.set(6*9);
+		//...
+		useData(data.get());//this call will pass 54 as a parameter.
+	}
+}
+\end{lstlisting}
+
+The \emph{initialValue()} hook is a means of supplying an initial value to any
+new thread in the absence of any calls to \emph{set()} before any \emph{get()}
+operations. If no initial value is supplied and there is no call to \emph{set()}
+withing a new thread then \emph{get()} shall return \textbf{null}. A sequential
+program executed using ThreadLocal objects behaves the same as one that doesn't.
+
+\mysection{Profilers}{th:profilers}
+Profilers are tools that help us analyze our programs dynamically (at runtime).
+This way they can measure memory usage, the frequency and duration of method
+calls and trace precisely which program paths are executed for given input.
+(information not available with static analysis).
+
+\mysubsection{YourKit Java Profiler 11}{th:yourkit}
+YourKit~\cite{YourKit-site} is the profiler we have used to analyze open-source
+projects in order to find computationally intensive loops.
+
+\mysection{Static Analysis}{th:static-analysis}
+Static analysis is the analysis of computer programs without actually executing
+them. It is done on source code and/or object code. It is often employed by
+automated tools.
+
+\mysubsection{WALA T.J. Watson Libraries for analysis}{th:wala}
+WALA~\cite{wala-site} is an open-source library that provides Java byte-code
+analysis.
+
+\mysubsection{Dominator (graph theory)}{th:dominators}
+In control flow graphs a node \textbf{d} dominates a node \textbf{n} if every
+path from a \textit{start node} to to \textbf{n} must go through \textbf{d}.
+WALA gives us a means for calculating dominators based on the implementation
+presented in~\cite{dominator-algo}.
+
+\mysubsection{CGNode}{th:cgnode}
+During static analysis, methods and/or functions are associated with an abstract
+representation called a \emph{Call Graph Node}. \emph{CGNode} is WALA's answer
+to these nodes. Also, each \emph{CGNode} contains the control-flow graph
+of the abstracted function.
+
+\mysubsection{Call graph}{th: call graph}
+The call graph abstracts the call structure of the program by representing the
+calls between methods as edges between call graph nodes (in WALA, CGNode).
+
+\mysubsection{Control-flow graph}{th:cfg}
+Is a representation in graph form of the path that a program might take during
+execution time. The nodes are basic block (uninterrupted lines of code; e.g.
+assignments, operations).
+
+\mysubsection{Interprocedural, Finite, Distributive, subset problems}{th:ifds}
+Are a special case of graph reachability problems where a finite set of facts is
+propagated through the nodes of the graph and the merging of facts accumulated
+at path intersections are done through set union or set
+intersection~\cite{IFDS}.The algorithm for solving IFDS problems has a very big
+advantage over other static analysis algorithms because it offers infinite
+context sensitivity, the return edges of method calls are linked to each
+individual call site so that when you do step-wise execution on the graph you
+return to the unique node from which the method was invoked.

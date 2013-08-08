@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Wed Jun 13 09:42:19 EEST 2012
+markTmpDer=true
+builderNum=2
+outputDir=output/
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=RacefixThesis.tex
+outputFile=Racefix.pdf
+langSpell=en
+markDer=true
+srcDir=

@@ -1,0 +1,55 @@
+\graphicspath{{content/accesstrace/figures/}}
+
+\mychapter{Access Trace}{chap:access-trace}
+\epigraph{\textit{We wants it, we needs it. Must have the precious.}}%
+{---\textsc{Gollum}} 
+
+The idea behind this algorithm is the following: after we have determined which
+data-races are \slcds we want to take each privatizable field and find its
+origin while tracing the path (classes that have owned the object referenced by
+the aforementioned field at some point) through which it got into the parallel
+context.
+Knowing the origin is important to determine initial values, if you recall
+listing~\ref{code:jmol:SticksRenderer-TL-naive} you can see that some
+\emph{ThreadLocal} fields have an \emph{initialValue()}. When we cannot
+determine initial values we fall back to the solution presented in
+chapter~\ref{chap:privatization}, which uses the trace information we have
+gathered during this phase.
+
+The algorithm uses information from both the call graph(see~\ref{th:cfg}) and
+the heap-graph (see~\cite{wala-heapgraph}) to do the above mentioned task.
+Basically, it gets an \emph{InstanceKey} associated with a field then goes
+through the def-use chain of said field to the previous assignment and gets a
+new \emph{InstanceKey}. From this point it iterates through the two stages mentioned
+above until it exhausts all the fields that are candidates for privatization. We
+treat the data from the access trace as if each individual trace-path is merged
+with the union operator.
+
+A very abstract representation of how the access trace looks like can be seen
+in Figure~\ref{fig:accesstrace}.
+
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=10cm]{accesstrace}
+		\caption{Abstract representation of an access trace}
+		\label{fig:accesstrace}
+	\end{center}
+\end{figure}
+
+\mysection{Evaluation}{ssec:access-trace-evaluation}
+The access trace algorithm has been tested on Jmol and it currently outputs
+correct traces for only 30 of the 100 \slcds(see
+subsection~\ref{ssec:lcd-evaluation}) detected by our tool.
+This inadvertently limits our ability to compute the optimal way of privatizing
+objects, this is also the only hindrance in our attempt to build a fully
+automated tool.
+
+\mysection{A question of correctness}{sec:access-trace-correctness}
+Even though we've solved the problem of propagating the state of the privatized
+data from the main thread to the worker threads that perform the parallel
+operation with our \emph{ThreadPrivatqe}~\ref{ssec:threadprivate} we have no way
+of making the state changes in the worker threads visible again to the outside.
+
+In consequence we have to make sure that the semantics of the program do not
+require state change of the privatized data to be propagated outside the
+parallel context. This raises the question of how. How do we do this?

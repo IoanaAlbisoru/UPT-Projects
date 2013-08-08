@@ -1,0 +1,223 @@
+\graphicspath{{content/analysis/figures/}}
+
+\mychapter{Open-source project analysis}{chap:analysis}
+\epigraph{\textit{I have approximate answers and possible beliefs in different
+degrees of certainty about different things, but I'm not absolutely sure of
+anything\ldots}}%
+{---\textsc{Richard Feynman}} 
+
+Data-races can manifest themselves in multiple ways so we have used a best
+practice when it comes to automated refactoring tools: identifying the common
+changes that programmers make in the process of parallelizing an application.
+Thus, we started out by analyzing a total of 34 open-source Java projects (a
+complete list can be found in appendix~\ref{ap:projects}). We have chosen three
+of them as candidates for parallelization: \textbf{Jmol, Art of Illusion,
+VASSAL}~\cite{Jmol-site, VASSAL-site, AOI-site}. The reason we chose so few is
+because the other ones did not contain any computationally intensive loops in
+order to warrant parallelization.
+
+\mysection{The manual process of parallelization}{sec:manual-parallelization}
+
+We started out by running the program with the Yourkit Java Profiler
+(see~\ref{th:yourkit}) in order to find the computationally intensive parts of
+the program. Since our aim is to build an automated refactoring tool we had to
+find code that did not require very high level changes to its structure.
+In this thesis I will be using only Jmol~\cite{Jmol-site} as an example. The
+most computationally intensive loop of the program is the following:
+
+\begin{lstlisting}[caption={Computationally intensive loop within the
+SticksRenderer class}, label = {code:jmol:render_seq}]
+private void render_seq(Bond[] bonds){
+	for (int i = modelSet.getBondCount(); --i>= 0;) {
+		bond = bonds[i];
+		if ((bond.getShapeVisibilityFlags() & myVisibilityFlag) != 0)
+			renderBond();
+    }
+}
+\end{lstlisting}	
+
+The code of the \emph{renderBond()} method in listing~\ref{code:jmol:render_seq}
+is included in annex~\ref{ap:SticksRenderer} because of its sheer size and
+complexity. It spans over 6 classes, countless other methods and references a
+total of 101 fields 997 times. These numbers make it pretty clear that it is
+difficult for a programmer to fully grasp the code in order to ensure its
+correctness.
+And the fact it is executed in parallel only makes things worse.
+Some fields are only read, which automatically makes their usage safe. If they
+weren't read only we would have to do a more thorough inspection of each
+referencing. It is fairly obvious that this is a tedious, time-consuming and
+monotonous task for a human. Moreover, it is extremely error-prone, one missed
+reference during this investigation can lead to a data-race, basically
+introducing a bug in the program that is known to be very hard to detect and
+fix.
+
+A naive, in the sense that no measures were taken to ensure correctness, version
+of the parallelized loop can be seen in listing~\ref{code:jmol:render_par}. Line
+8 causes a data race; the correct version is presented later in this chapter.
+
+\begin{lstlisting}[caption={The incorrect parallelized version of
+listing~\ref{code:jmol:render_seq}}, label = {code:jmol:render_par}]
+ private void render_par(Bond[] bonds) {
+    ParallelArray<Bond> array = ParallelArray.createUsingHandoff(bonds,
+    ParallelArray.defaultExecutor()); array.apply(new Procedure<Bond>() {
+
+      @Override
+      public void op(Bond b) {
+        //all the necessary data for the computation is provided by this object
+        bond = b;
+        if ((bond.getShapeVisibilityFlags() & myVisibilityFlag) != 0)
+          renderBond();
+      }
+    });
+  }
+\end{lstlisting}
+
+\emph{SticksRenderer}, the class that contains the parallel operation has the
+field structure presented in Section \ref{code:jmol:SticksRenderer-fields}. All
+these fields would be written at some point in the execution of the
+\emph{renderBond()} and read later on the execution path causing data-races.
+
+\begin{lstlisting}[caption={Some of the fields in SticksRenderer}, label =
+{code:jmol:SticksRenderer-fields}]
+public class SticksRenderer extends ShapeRenderer {
+  private Atom atomA, atomB;
+  private Bond bond;
+  private int xA, yA, zA;
+  private int xB, yB, zB;
+  private int dx, dy;
+  private short colixA, colixB;
+  private boolean isAntialiased;
+  private boolean slabbing;
+  private int[] dashDots;
+  
+  private final Vector3f x = new Vector3f();
+  private final Vector3f y = new Vector3f();
+  private final Vector3f z = new Vector3f();
+  /*everything else was omitted for the sake of brevity*/
+}
+\end{lstlisting}
+
+We noticed that the fields of \emph{SticksRenderer} from
+listing~\ref{code:jmol:SticksRenderer-fields} are being initialized in the
+parallel context and used only within the same context. This gave us the idea
+that the only thing we had to do to eliminate data races is make sure that each
+thread would receive its own unique objects. This can be easily achieved by
+using Java's \emph{ThreadLocal}~\ref{th:thread-local}. A very naive method of using
+\emph{ThreadLocal} is presented in~\ref{code:jmol:SticksRenderer-TL-naive}.
+
+\begin{lstlisting}[caption={Naive method of privatizing the data}, label =
+{code:jmol:SticksRenderer-TL-naive}]
+public class SticksRenderer extends ShapeRenderer {
+	private ThreadLocal<Atom> atomA = new ThreadLocal<Atom>(), 
+							  atomB = new ThreadLocal<Atom>();
+	private ThreadLocal<Bond> bond = new ThreadLocal<Bond>();
+	private ThreadLocal<Integer> xA = new ThreadLocal<Integer>();
+	private ThreadLocal<Integer> yA = new ThreadLocal<Integer>();
+	private ThreadLocal<Integer> zA = new ThreadLocal<Integer>();
+	private ThreadLocal<Integer> xB = new ThreadLocal<Integer>(), 
+								 yB = new ThreadLocal<Integer>(),
+								 zB = new ThreadLocal<Integer>();
+	private ThreadLocal<Integer> dx = new ThreadLocal<Integer>(),
+								 dy = new ThreadLocal<Integer>();
+	private ThreadLocal<Short> colixA = new ThreadLocal<Short>(),
+							   colixB = new ThreadLocal<Short>();
+	private ThreadLocal<Integer> width = new ThreadLocal<Integer>();
+	private final ThreadLocal<Vector3f> x = new ThreadLocal<Vector3f>() {
+		@Override
+		public Vector3f initialValue() {
+			return new Vector3f();
+		}
+	};
+	private final ThreadLocal<Vector3f> y = new ThreadLocal<Vector3f>() {
+		@Override
+		public Vector3f initialValue() {
+			return new Vector3f();
+		}
+	};
+	private final ThreadLocal<Vector3f> z = new ThreadLocal<Vector3f>() {
+		@Override
+		public Vector3f initialValue() {
+			return new Vector3f();
+		}
+	};
+\end{lstlisting}
+
+This method is a inefficient because referencing \emph{ThreadLocal} objects
+often during the execution causes severe overhead. We performed this
+transformation on each individual field that was involved in a data-race and the
+difference in performance is from an average sequential running time of 1.4s to
+2.2s; so an overhead of roughly 63\%. Thus came the necessity of a better
+solution, which not only could reduce the overhead introduced but also minimize
+the changes to the code. By converting fields to \emph{ThreadLocal} the
+programmer has to update all the references.
+
+The above mentioned drawbacks are eliminated if we encapsulate at a higher level
+(i.e. try to privatize the objects that aggregate most fields), which will be
+discussed in chapter~\ref{chap:privatization}. Also, an alternative
+privatization method is presented in
+listing~\ref{code:jmol:SticksRenderer-TL-DTO}. Instead of fetching the data
+transfer object for every field reference, we simply fetch it once in every
+method and store the reference in a local variable; as seen
+in~\ref{code:jmol:DTO-inderection}. This approach causes no measurable overhead.
+
+\begin{lstlisting}[caption={Creating a data transfer object}, label =
+{code:jmol:SticksRenderer-TL-DTO}]
+public class SticksRenderer extends ShapeRenderer {
+	public static class SticksRendererData{
+		private Atom atomA, atomB;
+  		private Bond bond;
+  		private int xA, yA, zA;
+  		private int xB, yB, zB;
+  		private int dx, dy;
+  		private short colixA, colixB;
+		private boolean isAntialiased;
+  		private boolean slabbing;
+  
+  		private final Vector3f x = new Vector3f();
+  		private final Vector3f y = new Vector3f();
+  		private final Vector3f z = new Vector3f();
+	}
+	
+	ThreadLocal<SticksRendererData> data = new ThreadLocal<SticksRendererData>{
+		@Override
+		public SticksRendererData initialValue() {
+			return new SticksRendererData();
+		}
+	};
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Referencing a data transfer object}, label =
+{code:jmol:DTO-inderection}]
+private void renderBond(Bond bond) {
+	SticksRendererData localData = this.data.get();
+	localData.atomA = bond.getAtom1();
+	localData.atomB = bond.getAtom2();
+	
+	//the rest of the method was avoided for the sake of brevity
+}
+}
+\end{lstlisting}
+Using the privatization method presented in
+listing~\ref{code:jmol:SticksRenderer-TL-DTO} we can write a correct solution
+for the parallelization presented in~\ref{code:jmol:render_par}. As you can see
+in~\ref{code:jmol:render_par_correct} on line 6 the field \emph{bond} is
+accessed through the encapsulated privatized data object.
+
+\begin{lstlisting}[caption={The correct parallelized version of
+listing~\ref{code:jmol:render_seq}}, label = {code:jmol:render_par_correct}]
+ private void render_par(Bond[] bonds) {
+    ParallelArray<Bond> array = ParallelArray.createUsingHandoff(bonds,
+    ParallelArray.defaultExecutor()); array.apply(new Procedure<Bond>() {
+      @Override
+      public void op(Bond b) {
+        data.get().bond = b;
+        if ((bond.getShapeVisibilityFlags() & myVisibilityFlag) != 0)
+          renderBond();
+      }
+    });
+  }
+\end{lstlisting}
+
+Run on an 2.2GHz Intel Core i3 with 4 cores the improvement in performance is
+2.3x (from an average of 1.4s to an average of 0.6s).

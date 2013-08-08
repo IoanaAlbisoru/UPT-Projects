@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>ThesisSummaryEn</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>net.sourceforge.texlipse.builder.TexlipseBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>net.sourceforge.texlipse.builder.TexlipseNature</nature>
+	</natures>
+	<variableList>
+		<variable>
+			<name>Bibliography</name>
+			<value>file:/D:/Workspace/EclipseWorkspaces/BachelorThesis/Bibliography</value>
+		</variable>
+	</variableList>
+</projectDescription>

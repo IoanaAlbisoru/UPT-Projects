@@ -1,0 +1,92 @@
+\ProvidesPackage{styles/racefixstyle}
+
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{epigraph}
+\setlength{\epigraphwidth}{0.6\textwidth}
+\setlength{\epigraphrule}{0cm}
+
+%\usepackage[caption=false]{subfig}
+\usepackage[numbers,sort]{natbib}
+\usepackage[hmargin=2.5cm,vmargin=2.5cm]{geometry}
+
+\setlength{\parskip}{4pt}
+
+\usepackage{setspace}
+\setstretch{1.2}
+
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{eucal}
+\usepackage[english]{babel}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage[perpage]{footmisc}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[RO]{\bfseries\rightmark}
+\fancyfoot[C]{\thepage}
+\fancypagestyle{plain}{
+  \fancyhead{}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+\usepackage[ pdftex, plainpages = false, pdfpagelabels, 
+                 pdfpagelayout = OneColumn, % display single page, advancing flips the page - Sasa Tomic
+                 bookmarks,
+                 bookmarksopen = true,
+                 bookmarksnumbered = true,
+                 breaklinks = true,
+                 linktocpage,
+                 pagebackref,
+                 colorlinks = true,
+                 linkcolor = blue,
+                 urlcolor  = blue,
+                 citecolor = red,
+                 anchorcolor = green,
+                 hyperindex = true,
+                 hyperfigures
+                 ]{hyperref} 
+    \usepackage[pdftex]{graphicx}
+    \usepackage{caption}
+	\usepackage{subcaption}
+    \DeclareGraphicsExtensions{.png, .jpg, .pdf}
+    \pdfcompresslevel=9
+    
+\pdfpageheight=297mm
+\pdfpagewidth=210mm
+
+%pseudoalgorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%code snippets
+\usepackage{color}
+\usepackage{listings}
+\usepackage{listings,calc}
+\lstset{
+	tabsize=4,
+	basicstyle=\scriptsize,
+	aboveskip={1.5\baselineskip},
+	columns=fixed,
+	numbers = left,
+	showstringspaces=false,
+	extendedchars=true,
+	breaklines=true,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+	frame=single,
+	showtabs=false,
+	showspaces=false,
+	showstringspaces=false,
+	identifierstyle=\ttfamily,
+	keywordstyle=\color[rgb]{0,0,1},
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	language=Java
+}
+
+\newenvironment{alwayssingle}{%
+		\addtocounter{page}{-1}
+       \@restonecolfalse\if@twocolumn\@restonecoltrue\onecolumn
+       \else\newpage\fi}
+       {\if@restonecol\twocolumn\else\newpage\fi}

@@ -1,0 +1,109 @@
+\graphicspath{{content/conclusions/figures/}}
+
+\mychapter{Conclusions}{chap:conclusions}
+\epigraph{\ldots from so simple a beginning endless
+forms most beautiful and most wonderful have been, and are being,
+evolved.}%
+{---\textsc{Charles Darwin}} 
+
+Refactorings haven't been in the attention of the software engineering community
+for long and only recently has the concept permeated amongst the average
+programmer due to the emergence of automated refactorings within popular IDEs.
+Now, with the onset of multi-core and many-core microprocessors we are faced
+with a new class of refactorings, retrofitting sequential code to parallel code.
+This kind of changes are non-trivial as emphasized in
+chapter~\ref{chap:analysis} and we are confident that we have found a novel
+solution to a problem faced while performing such refactorings: discovering and
+fixing data-races.
+
+This refactoring is different from the ones users are familiar with from their
+IDEs in the sense that it is heavy-duty (due to the long running time) and much
+more extensive in terms of possible necessary structural transformations (see
+section~\ref{sec:manual-parallelization}) compared to say, \emph{extract method}
+which even though can potentially identify code duplication in countless
+different locations; our tool does structural changes to an arbitrarily large
+number of classes (see the way privatization works in chapter~\ref{chap:privatization}).
+
+The solution presented is by no means intended to be a silver-bullet to the
+problem of automatically fixing data-races; but rather be a neat piece of
+equipment in the programmer's tool belt alongside \emph{ReLooper,
+Immutator}~\cite{ReLooper, Immutator} and many other refactorings for
+parallelism and parallelism enabling tools that will emerge in the near future.
+Its purpose (just like any other refactoring's purpose) is to free the
+programmer of tedious, repetitive labor and have him focus on abstract high
+level concerns that, to date, only humans can reason about.
+
+\mysection{Results}{sec:results}
+We have managed to build a sound analysis for determining \lcds in a novel and
+efficient way(see section~\ref{sec:ifds-solution}). Even taken out of the
+context of this thesis it is a useful tool in of itself because it can give the
+programmer information about the data-flow in loops; which can be applied to
+many things, including manual refactoring if the problem is to complex to solve
+automatically.
+
+Furthermore we propose a generic solution to fixing data-races (see
+chapters~\ref{chap:analysis},~\ref{chap:privatization}) in the form of data
+privatization. And offer a refactoring for \emph{ThreadLocal} which can be
+invoked in a user-friendly way from the eclipse IDE; sparring the programmer the
+trouble of updating numerous references.
+
+We are also on the verge of creating a fully automated tool that can fix
+data-races, currently being hindered by incomplete results provided by the
+access trace described in chapter~\ref{chap:access-trace}.
+
+\mysection{Shortcomings}{sec:shortcomings}
+\epigraph{\textit{A scientific man ought to have no wishes, no affections, a
+mere heart of stone.}}{---\textsc{Charles Darwin}}
+
+In software engineering, rare are the cases in which a design decision comes at
+no other cost, in which it is not simply a trade-off. And it is also a well
+known problem that introducing concurrency and parallelism into your software
+makes code harder to reason about (except in the case of languages designed for
+parallelism, which happen to have little impact on the bulk of the community)
+and our refactoring is no exception. Also, considering the fact that we are
+trying to introduce a new automated tool we cannot shy away from self-criticism.
+
+The most obvious draw-back from using our tool is a maintenance issue, once
+we have privatized classes as seen in listing~\ref{code:privatizer:jmol-dto}
+future addition of data will have to be constrained by this change; and
+developers will have to be careful to properly populate newly privatized
+objects.
+
+Another important issue is usability and developer willingness to use our tool.
+As it was pointed out in \emph{Use, Disuse, and Misuse of Automated
+Refactorings}~\cite{Ref-UseDisuse} programmers are reluctant to use complex
+refactorings that perform extensive changes. Given the fact that our refactoring
+is much more complex than the ones subject to the paper mentioned above; we have
+to concede to the fact that our tool has yet to pass that amount of stress
+testing necessary to earn the developer's trust.
+
+\mysection{Future work}{ssec:future}
+Given the fact that at the time of writing of this thesis our tool is still
+incomplete and not ready for a demo; our short term plan is to make it ready,
+there are a few ins and outs to work out in access trace and we should be
+finished. If we step back and look at the big picture, ultimately, our goal is
+to make our tool robust enough to use on large software projects, bigger than
+Jmol.
+
+Also, theoretically, we would have no problem receiving the data-races as user
+input generated in an intuitive manner from the IDE; but that would slightly
+cripple the automated aspect of the tool. But it's still a point of view worth
+exploring as it could force us to make more localized changes and reduce the
+size of our tool making it more easy to use and reason about its side effects.
+
+Currently our analysis is restricted to the context of \emph{ParallelArray},
+but we should be able to apply automatic privatization to data accessed from
+run of the mill threads. It would be easier, probably, because we no longer need
+to consider the problems raised by \slcd detection.
+
+\mysection{Final thoughts}{sec:final}
+\epigraph{\textit{No man should escape our universities without knowing how
+little he knows.}}%
+{---\textsc{J. Robert Oppenheimer}} 
+
+We have to look twice before deeming something as boring or trivial, it may very
+well be riddled with not so obvious intricacies that require complicated
+solutions. These solutions might aid us in our never-ending pursuit of helping
+the programmer tackle the innumerable complexities of software. Particularly, for
+me, the satisfaction of working on software engineering problems regarding
+parallelism is unparalleled.

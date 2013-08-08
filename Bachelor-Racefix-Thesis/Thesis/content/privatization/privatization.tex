@@ -1,0 +1,150 @@
+\graphicspath{{content/privatization/figures/}}
+
+\mychapter{Privatization}{chap:privatization}
+\epigraph{\textit{I love fool's experiments. I am always making them!}}
+{---\textsc{Charles Darwin}} 
+
+In the introduction~\ref{chap:introduction} I have mentioned that we are
+employing our \emph{ThreadPrivate} class instead of Java's standard
+\emph{ThreadLocal} to handle data privatization. The motivation for this is
+quite straightforward: during the manual parallelization, for me, as a human, it was
+easy to keep track of the high level model of the program and realize that the
+data that requires privatization does not have to be in any special state for
+the parallel computation to execute correctly. Unfortunately, no present
+automated tool can do this kind of high level analysis. Thus we had to come up
+with a generic solution that can be easily applied by a machine. We save the
+state of every object target to privatization prior to entering the parallel
+loop context and offer a mechanism akin to \emph{Object.clone()} to freshly
+recreate it for each thread.
+
+\mysection{Library classes provided by us}{sec:ThreadPrivate-Privatizer}
+
+\mysubsection{ThreadPrivate}{ssec:threadprivate}
+
+\emph{ThreadPrivate} extends \emph{ThreadLocal} and offers a mechanism for
+propagating the state of the encapsulated objects have to the context of the
+threads. This is achieved by saving the reference to every object that is set
+from the main thread with \emph{ThreadPrivate.set(value)}. The storing and
+retrieval of the objects is the job of our data structure called
+\emph{Privatizer}.
+
+\emph{ThreadPrivate} overrides and makes the \emph{initialValue()} hook of
+\emph{ThreadLocal} final, because it is within that method that the interaction
+with \emph{Privatizer} takes place. Clients who wish to provide an initial value
+will have to use the \emph{initValue()} method provided by \emph{ThreadPrivate}
+which is perfectly analogous to the original \emph{initialValue()}. The source
+code for \emph{ThreadPrivate} can be found in appendix~\ref{ap:TP}.
+
+Unfortunately, ThreadPrivate can be used only to encapsulate objects of class
+\emph{Privatizable} and an ever-growing base of standard library objects (i.e.
+Integer, Collections, etc).
+
+\mysubsection{Privatizable}{ssec:privatizable}
+\emph{Privatizable} objects are used by \emph{Privatizer} to ensure state
+preservation from the main thread and propagation towards any additional
+threads. The source code for this interface can be found in
+listing~\ref{code:privatizable}. The method \emph{createPrivate()} serves the
+purpose of a factory method for itself. After its creation, the object is passed
+onto the method \emph{populatePrivate} which is responsible with the
+initialization of the new object's state, if necessary.
+
+\begin{lstlisting}[caption={Privatizable source
+code}, label = {code:privatizable}]
+public interface Privatizable<T extends Privatizable<T>> {
+	public T createPrivate();
+	public void populatePrivate(T p);
+}
+\end{lstlisting}
+
+\mysubsection{Privatizer}{ssec:privatizer}
+
+Privatizer is responsible with the proper storage and retrieval of privatizable
+objects. This is done by maintaining an \emph{IdentityHashMap} for each thread
+that maps an object (the original object who's state we're saving) to its
+corresponding copy, which is then used in thread. The source code for privatizer
+can be found in appendix~\ref{ap:Privatizer}.
+
+At this point in time \emph{Privatizer} is highly experimental and will be
+subject to improvements.
+
+\mysubsection{Example of usage}{ssec:example-threadprivate}
+Using the above described classes the example presented in
+listing~\ref{code:jmol:SticksRenderer-TL-DTO} can be rewritten to use
+\emph{ThreadPrivate} as follows~\ref{code:privatizer:jmol-dto}:
+
+\begin{lstlisting}[caption={Using a data transfer object}, label =
+{code:privatizer:jmol-dto}]
+public class SticksRenderer extends ShapeRenderer {
+	public static class SRData implements  Privatizable<SRData>{
+		private Atom atomA, atomB;
+  		private Bond bond;
+  		private int xA, yA, zA;
+  		private int xB, yB, zB;
+  		private int dx, dy;
+  		private short colixA, colixB;
+		private boolean isAntialiased;
+  		private boolean slabbing;
+  
+  		private final Vector3f x = new Vector3f();
+  		private final Vector3f y = new Vector3f();
+  		private final Vector3f z = new Vector3f();
+  		
+		@Override
+		public SRData createPrivate() {
+			return new SRData();
+		}
+
+		@Override
+		public void populatePrivate(SRData t) {
+		//here we would have to assign initial values to the new object, 
+		//if necessary
+		}
+	}
+	
+	ThreadLocal<SRData> data = new ThreadLocal<SRData>{
+		@Override
+		public SRData initialValue() {
+			return new SRData();
+		}
+	};
+}
+\end{lstlisting}
+
+\mysection{Computing privatization
+information}{sec:computing-privatization-info}
+
+This part of the algorithm uses the trace information gathered during the access
+trace presented in~\ref{chap:access-trace} to compute the privatization scheme.
+Basically it aims to encapsulate at the highest level possible (i.e. trying to
+find the classes that encapsulate most data marked for privatization) excluding
+the class that contains the computation and fields that are \lcds.
+
+\mysection{Refactoring}{sec:refactoring}
+The truly difficult part of any refactoring is the analysis, the checking of
+preconditions which dominated the discourse topic of this thesis up until now.
+Once you have this information building a refactoring on top of the
+\emph{eclipse} platform becomes straightforward. The general overview how a
+refactoring works in eclipse is described in the theory
+section~\ref{th:eclipse-ref} and there is little use to giving more than an
+abstract description of our refactorings.
+
+\paragraph{The \emph{ThreadPrivate} refactoring} takes as input a map from
+classes that are to implement the \emph{Privatizable} interface to a set of fields of that class that are to be
+made \emph{ThreadPrivate}. The refactoring's responsibility is to change all
+references to fields to go through \emph{ThreadPrivate's} getters and setters
+and generate the implementation of the \emph{createPrivate()} and
+\emph{populatePrivate(T)} methods. Last, notifying the user if the changes
+generate any compilation errors.
+
+\paragraph{The \emph{ThreadLocal} refactoring} takes as input the fully
+qualified names of the fields to be converted; it updates all necessary references to use getters
+and setters and it writes the \emph{initialValue()} method to return the value
+assigned during initialization.
+
+The two refactorings can easily work independently from our tool and have been
+integrated in the UI of eclipse giving us the chance to test them manually. They
+have been invoked on several fields from Jmol and performed the transformations
+as expected.
+
+
+

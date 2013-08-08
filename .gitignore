@@ -29,3 +29,22 @@ bin/
 *.exe
 *.out
 *.app
+
+#latex stuff
+.metadata
+tmp
+*.gz
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.brf
+*.ilg
+*.lof
+*.log
+*.lol
+*.nlo
+*.nls
+*.out
+*.toc
+

@@ -1,0 +1,61 @@
+\ProvidesPackage{styles/racefixstyle}
+
+\usepackage{multirow}
+\usepackage{url}
+%\usepackage[caption=false]{subfig}
+\usepackage[numbers,sort]{natbib}
+
+\setlength{\parskip}{3pt}
+
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.png, .jpg, .pdf}
+
+\renewcommand{\bibname}{References}
+
+%pseudoalgorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%code snippets
+\usepackage{color}
+\usepackage{listings}
+\usepackage{listings,calc}
+\lstset{
+	tabsize=4,
+	basicstyle=\scriptsize,
+	aboveskip={1.5\baselineskip},
+	columns=fixed,
+	numbers = left,
+	showstringspaces=false,
+	extendedchars=true,
+	breaklines=true,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+	frame=single,
+	showtabs=false,
+	showspaces=false,
+	showstringspaces=false,
+	identifierstyle=\ttfamily,
+	keywordstyle=\color[rgb]{0,0,1},
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	language=Java
+}
+
+\let\oldAA\AA
+\let\oldaa\aa
+\def\AA{\^ A}
+\def\aa{\^ a}
+\def\myqq@{'}
+\catcode`\'=13
+\def'#1{\ifmmode {}^\prime #1%
+         \else\ifx#1a\u{a}%
+         \else\ifx#1i\^{\i}%
+         \else\ifx#1s\c{s}%
+         \else\ifx#1t\c{t}%
+         \else\ifx#1A\u{A}%
+         \else\ifx#1I\^{I}%
+         \else\ifx#1S\c{S}%
+         \else\ifx#1T\c{T}%
+         \else\ifx#1"\myqq@%
+               \fi\fi\fi\fi\fi\fi\fi\fi\fi%
+         \fi}
